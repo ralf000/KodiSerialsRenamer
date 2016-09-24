@@ -14,13 +14,27 @@ class SerialRenaimer extends ARenaimer
         'RENAMED' => 1
     ];
     const ONE_SEASON = TRUE;
-    const EXTENSIONS = ['avi', 'mkv', 'mov', 'wma', 'mp4', 'flv', 'm4v', 'ts', 'srt', 'ssa', 'ass'];
+
+    private $extensions = [];
+    private $currentPath = '';
     private $serials = [];
     private $serial = [];
     private $seasons = [];
     private $season = [];
     private $seasonNum = '01';
     private $extension = '';
+
+    /**
+     * SerialRenaimer constructor.
+     * @param IFileHandler $fileHandler
+     */
+    public function __construct(IFileHandler $fileHandler)
+    {
+        parent::__construct($fileHandler);
+        // TODO get extensions from config
+        //$this->extensions = $extensions;
+    }
+
 
     public function run()
     {
@@ -54,9 +68,9 @@ class SerialRenaimer extends ARenaimer
 
     private function season() : int
     {
-        $path = $this->getFullPath("{$this->serial}/{$this->seasons[1]}");
+        $this->currentPath = $this->getFullPath("{$this->serial}/{$this->seasons[1]}");
         // проверяем файлы перед нами или папки
-        if (is_file($path)) {
+        if (is_file($this->currentPath)) {
             if (preg_match('/[^\d](\d{1,2})[^\d]/', $this->serial, $seasonNum))
                 $this->seasonNum = $seasonNum[1];
             if (strlen($this->seasonNum) == 1)
@@ -66,20 +80,18 @@ class SerialRenaimer extends ARenaimer
         }
         foreach ($this->seasons as $season) {
             $this->season = $season;
-            $seasonFullPath = $this->getFullPath($this->serial) . $season;
+            $this->currentPath = $this->getFullPath($this->serial) . $season;
             //если это сезон
-            if (is_dir($seasonFullPath)) {
+            if (is_dir($this->currentPath)) {
                 preg_match('/\d{1,2}/', $season, $seasonNum);
                 if (mb_strlen($seasonNum[0]) == 1)
-                    $seasonNum[0] = '0' . $seasonNum[0];
+                    $seasonNum = '0' . $seasonNum[0];
+                $this->seasonNum = $seasonNum;
                 $newName = 'Season ' . trim($seasonNum[0]);
-                $result = $this->series($ftp_stream, $seasonFullPath, $season, $seasonNum[0]);
+                $result = $this->series();
                 if ($result) {
-                    $log[$serial][] = "\t$season => $newName\r\n";
-                    $log[$serial][] = $result;
-                    $log[$serial][] = '------------------------------------------' . "\r\n";
                     if ($season !== $newName)
-                        ftp_rename($ftp_stream, $season, $newName);
+                        $this->fileHandler->rename($season, $newName);
                 } else {
                     return self::STATUS['SKIP'];
                 }
@@ -88,17 +100,16 @@ class SerialRenaimer extends ARenaimer
         return self::STATUS['RENAMED'];
     }
 
-    function series($oneSeasonSerial = FALSE)
+    private function series($oneSeasonSerial = FALSE) : bool
     {
-        $path = $this->getFullPath($this->serial);
         if (!$oneSeasonSerial)
             $this->fileHandler->open($this->serial);
-        if (is_dir($path)) {
+        if (is_dir($this->fullPath)) {
             $series = $this->fileHandler->list();
         }
         sort($series);
         foreach ($series as $ep) {
-            if (is_file($oldEpFullPath = $path . $ep)) {
+            if (is_file($oldEpFullPath = $this->currentPath . $ep)) {
                 //пропускаем недокачанные серии
                 if (($this->extension = pathinfo($ep)['extension']) == 'part') {
                     $this->fileHandler->parent();
@@ -113,24 +124,24 @@ class SerialRenaimer extends ARenaimer
                 } else {
                     continue;
                 }
+                if ($epNewName === self::STATUS['SKIP'])
+                    continue;
                 if ($ep !== $epNewName) {
                     $this->fileHandler->rename($ep, $epNewName);
                 }
             }
         }
-        ftp_cdup($ftp_stream);
-        return TRUE;
+        return $this->fileHandler->parent() ? true : false;
     }
 
-    function episode($epNum)
+    private function episode($epNum) : string
     {
-        $securityExt = ['avi', 'mkv', 'mov', 'wma', 'mp4', 'flv', 'm4v', 'ts', 'srt', 'ssa', 'ass'];
-        if (!in_array($extension, $securityExt)) {
-            return;
+        if (!in_array($this->extension, $this->extensions)) {
+            return self::STATUS['SKIP'];
         }
         if (strlen($epNum) == 1)
             $epNum = '0' . $epNum;
-        return "s{$seasonNum}e{$epNum}.{$extension}";
+        return "s{$this->seasonNum}e{$epNum}.{$this->extension}";
     }
 
 }

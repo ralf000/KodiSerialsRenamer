@@ -3,6 +3,8 @@
 namespace ksr\classes;
 
 
+use Noodlehaus\Config;
+
 class FTPHandler implements IFileHandler
 {
 
@@ -34,11 +36,11 @@ class FTPHandler implements IFileHandler
     /**
      * Показать содержимое директории
      * @param string $dir
-     * @return array
+     * @return mixed
      */
-    public function list(string $dir = '') : array
+    public function list(string $dir = '')
     {
-        return ftp_nlist($this->ftp->getFtpStream(), $dir) ? true : false;
+        return ftp_nlist($this->ftp->getFtpStream(), $dir) ? : false;
     }
 
     /**
@@ -63,7 +65,7 @@ class FTPHandler implements IFileHandler
     }
 
 
-    public function getOpts() : array
+    public function getOpts() : Config
     {
         return $this->ftp->getOpts();
     }

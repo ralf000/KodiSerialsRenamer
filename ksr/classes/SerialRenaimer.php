@@ -4,6 +4,8 @@ namespace ksr\classes;
 
 
 use ksr\exceptions\FileHandlerException;
+use ksr\exceptions\FTPException;
+use Noodlehaus\Config;
 
 class SerialRenaimer extends ARenaimer
 {
@@ -31,8 +33,26 @@ class SerialRenaimer extends ARenaimer
     public function __construct(IFileHandler $fileHandler)
     {
         parent::__construct($fileHandler);
-        // TODO get extensions from config
-        //$this->extensions = $extensions;
+        $params = Config::load(__DIR__ . '/../../security/params.php');
+        $this->extensions = $params['serialExtensions'];
+    }
+
+    public static function g($var)
+    {
+        echo '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/styles/default.min.css">
+                <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/highlight.min.js"></script>
+                <script>hljs.initHighlightingOnLoad();</script>';
+        echo '<pre><code class="html" style="border: 1px solid black;">';
+        if (is_array($var) || is_object($var)) {
+            print_r($var);
+            if (is_object($var)) {
+                $class = get_class($var);
+                Reflection::export(new ReflectionClass($class));
+            }
+        } else {
+            echo htmlspecialchars($var);
+        }
+        echo '</code>';
     }
 
 
@@ -46,16 +66,24 @@ class SerialRenaimer extends ARenaimer
         $opts = $this->fileHandler->getOpts();
         $path = "ftp://{$opts['login']}:{$opts['password']}@{$opts['host']}/{$opts['path']}";
         $this->setPath($path);
+
+        $dir = $opts['path'] . '/' . $opts['dir'];
+        if (!$this->fileHandler->open($dir))
+            throw new FTPException('Недоступная директория: ' . $dir);
+
         $this->serials = $this->fileHandler->list();
         if (empty($this->serials) || !is_array($this->serials))
             throw new FileHandlerException;
+
         foreach ($this->serials as $serial) {
             $this->serial = $serial;
+            $this->g($this->getFullPath($serial)); exit;
             if (is_dir($this->getFullPath($serial)) && $this->isNew($serial)) {
                 //заходим в папку сериала
                 $this->fileHandler->open($serial);
                 //получаем список сезонов или серий
                 $this->seasons = $this->fileHandler->list();
+                $this->g($this->seasons); exit;
                 $status = $this->season();
                 if ($status !== self::STATUS['IS_FILE'])
                     $this->fileHandler->parent();

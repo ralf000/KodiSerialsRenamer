@@ -27,7 +27,7 @@ abstract class ARenaimer
     /**
      * @param string $path
      */
-    public function setPath($path)
+    protected function setPath($path)
     {
         $this->path = $path;
     }
@@ -35,7 +35,7 @@ abstract class ARenaimer
 
     protected function getFullPath(string $dir) : string
     {
-        return $this->path . DIRECTORY_SEPARATOR . $dir . DIRECTORY_SEPARATOR;
+        return $this->path . '/' . $dir . '/';
     }
 
 }

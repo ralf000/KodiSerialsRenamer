@@ -28,8 +28,9 @@ class FTPConnector
         $this->ftpStream = ftp_connect($host);
         if (!ftp_login($this->ftpStream, $this->opts['login'], $this->opts['password']))
             throw new FTPException('Не могу соединиться с фтп ' . $host);
-        if (!ftp_chdir($this->ftpStream, $this->opts['path']))
-            throw new FTPException('Недоступная директория: ' . $this->opts['path']);
+        $path = $this->opts['path'] . $this->opts['dir'];
+        if (!ftp_chdir($this->ftpStream, $path))
+            throw new FTPException('Недоступная директория: ' . $path);
         return true;
     }
 

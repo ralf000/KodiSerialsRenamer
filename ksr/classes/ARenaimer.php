@@ -35,7 +35,7 @@ abstract class ARenaimer
 
     protected function getFullPath(string $dir) : string
     {
-        return $this->path . '/' . $dir . '/';
+        return $this->path . '/' . $this->fileHandler->getOpts()['dir'] . '/' . $dir;
     }
 
 }

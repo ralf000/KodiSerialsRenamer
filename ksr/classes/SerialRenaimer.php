@@ -10,22 +10,6 @@ use Noodlehaus\Config;
 class SerialRenaimer extends ARenaimer
 {
 
-    const STATUS = [
-        'SKIP' => -1,
-        'IS_FILE' => 0,
-        'RENAMED' => 1
-    ];
-    const ONE_SEASON = TRUE;
-
-    private $extensions = [];
-    private $currentPath = '';
-    private $serials = [];
-    private $serial = [];
-    private $seasons = [];
-    private $season = [];
-    private $seasonNum = '01';
-    private $extension = '';
-
     /**
      * SerialRenaimer constructor.
      * @param IFileHandler $fileHandler

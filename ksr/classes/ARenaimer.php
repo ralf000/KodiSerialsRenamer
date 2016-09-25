@@ -5,7 +5,23 @@ namespace ksr\classes;
 
 abstract class ARenaimer
 {
+    const ONE_SEASON = TRUE;
     const RENAME_TAG = '(R)';
+    const STATUS = [
+        'SKIP' => -1,
+        'IS_FILE' => 0,
+        'RENAMED' => 1
+    ];
+
+    protected $extensions = [];
+    protected $currentPath = '';
+    protected $serials = [];
+    protected $serial = [];
+    protected $seasons = [];
+    protected $season = [];
+    protected $seasonNum = '01';
+    protected $extension = '';
+
     protected $fileHandler = null;
     private $path = '';
 

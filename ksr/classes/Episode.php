@@ -9,7 +9,16 @@
 namespace ksr\classes;
 
 
-class Episode
+class Episode extends ARenaimer
 {
 
+    private function episode($epNum) : string
+    {
+        if (!in_array($this->extension, $this->extensions)) {
+            return self::STATUS['SKIP'];
+        }
+        if (strlen($epNum) == 1)
+            $epNum = '0' . $epNum;
+        return "s{$this->seasonNum}e{$epNum}.{$this->extension}";
+    }
 }

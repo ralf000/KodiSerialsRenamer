@@ -9,7 +9,7 @@
 namespace ksr\classes;
 
 
-class Serial extends ARenaimer
+class Serial extends ARenamer
 {
     private function serial()
     {

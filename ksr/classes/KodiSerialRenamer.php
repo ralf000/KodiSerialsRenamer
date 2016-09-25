@@ -7,18 +7,17 @@ use ksr\exceptions\FileHandlerException;
 use ksr\exceptions\FTPException;
 use Noodlehaus\Config;
 
-class SerialRenaimer extends ARenaimer
+class KodiSerialRenamer extends ARenamer
 {
 
     /**
-     * SerialRenaimer constructor.
+     * KodiSerialRenamer constructor.
      * @param IFileHandler $fileHandler
      */
     public function __construct(IFileHandler $fileHandler)
     {
         parent::__construct($fileHandler);
-        $params = Config::load(__DIR__ . '/../../security/params.php');
-        $this->extensions = $params['serialExtensions'];
+        $this->initParams();
     }
 
     public static function g($var)
@@ -31,7 +30,7 @@ class SerialRenaimer extends ARenaimer
             print_r($var);
             if (is_object($var)) {
                 $class = get_class($var);
-                Reflection::export(new ReflectionClass($class));
+                \Reflection::export(new \ReflectionClass($class));
             }
         } else {
             echo htmlspecialchars($var);
@@ -91,7 +90,7 @@ class SerialRenaimer extends ARenaimer
         }
         foreach ($this->seasons as $season) {
             $this->season = $season;
-            $this->currentPath = $this->getFullPath($this->serial) . '/' .$season;
+            $this->currentPath = $this->getFullPath($this->serial) . '/' . $season;
             //если это сезон
             if (is_dir($this->currentPath)) {
                 preg_match('/\d{1,2}/', $season, $seasonNum);
@@ -156,6 +155,12 @@ class SerialRenaimer extends ARenaimer
         if (strlen($epNum) == 1)
             $epNum = '0' . $epNum;
         return "s{$this->seasonNum}e{$epNum}.{$this->extension}";
+    }
+
+    private function initParams()
+    {
+        $params = Config::load(__DIR__ . '/../../security/params.php');
+        $this->extensions = $params['serialExtensions'];
     }
 
 }

@@ -9,7 +9,7 @@
 namespace ksr\classes;
 
 
-class Episode extends ARenaimer
+class Episode extends ARenamer
 {
 
     private function episode($epNum) : string

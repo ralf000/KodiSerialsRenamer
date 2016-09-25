@@ -9,7 +9,7 @@
 namespace ksr\classes;
 
 
-class Season extends ARenaimer
+class Season extends ARenamer
 {
     private function season() : int
     {

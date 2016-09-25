@@ -3,7 +3,7 @@
 namespace ksr\classes;
 
 
-abstract class ARenaimer
+abstract class ARenamer
 {
     const ONE_SEASON = TRUE;
     const RENAME_TAG = '(R)';

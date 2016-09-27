@@ -28,7 +28,7 @@ abstract class ASerial extends ARenamer
     /**
      * @param string $path
      */
-    protected static function setPath($path)
+    protected static function setPath($path) :string 
     {
         self::$path = $path;
     }

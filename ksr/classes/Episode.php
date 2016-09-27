@@ -9,7 +9,7 @@ use ksr\exceptions\ConfigException;
 class Episode extends ASerial
 {
 
-    private static $episodes = '';
+    private static $episodes = [];
     private static $episode = '';
 
     private static $extension = '';
@@ -56,7 +56,6 @@ class Episode extends ASerial
 
     public function renameEpisode()
     {
-        $status = false;
         if (preg_match('/\d{1,2}[-|_]\d{1,2}/', self::$episode, $match))
             $this->rename(str_replace('_', '-', $match[0]));
         else if (preg_match('/s(\d{1,2})e(\d{1,2})/i', self::$episode, $match))
@@ -65,7 +64,7 @@ class Episode extends ASerial
             $this->rename($match[1]);
     }
 
-    public static function isEpisode($currentPath)
+    public static function isEpisode($currentPath) : bool
     {
         return (is_file($currentPath . '/' . self::$episode)) ? true : false;
     }
@@ -74,8 +73,7 @@ class Episode extends ASerial
      * пропускаем недокачанные серии
      * @return bool
      */
-    public
-    static function skipPart()
+    public static function skipPart() : bool
     {
         if (!self::$episodes || !is_array(self::$episodes))
             return false;
@@ -92,8 +90,7 @@ class Episode extends ASerial
     /**
      * @return string
      */
-    public
-    static function getExtension()
+    public static function getExtension() : string
     {
         return self::$extension;
     }

@@ -42,7 +42,7 @@ abstract class ARenamer
     /**
      * @return Config
      */
-    public static function getParams()
+    public static function getParams() : Config
     {
         return self::$params;
     }

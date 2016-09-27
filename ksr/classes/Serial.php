@@ -16,7 +16,7 @@ class Serial extends ASerial
 {
 
     private static $serials = [];
-    private static $serial = [];
+    private static $serial = '';
 
     /**
      * Serial constructor.

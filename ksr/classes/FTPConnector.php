@@ -38,7 +38,8 @@ class FTPConnector
         $this->ftpStream = ftp_connect($host);
         if (!ftp_login($this->ftpStream, $this->opts['login'], $this->opts['password']))
             throw new FTPException('Не могу соединиться с фтп ' . $host);
-        
+        ftp_pasv($this->ftpStream, true);
+
         return true;
     }
 
@@ -58,7 +59,7 @@ class FTPConnector
     }
 
     /**
-     * @return object;
+     * @return Config object;
      */
     public function getOpts() : Config
     {

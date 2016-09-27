@@ -10,6 +10,8 @@ use Noodlehaus\Config;
 class KodiSerialRenamer extends ARenamer
 {
 
+    private static $currentPath = '';
+
     /**
      * KodiSerialRenamer constructor.
      * @param IFileHandler $fileHandler
@@ -18,6 +20,11 @@ class KodiSerialRenamer extends ARenamer
     {
         parent::__construct($fileHandler);
         $this->initParams();
+    }
+
+    private function initParams()
+    {
+        self::$params = self::$fileHandler->getParams();
     }
 
     public static function g($var)
@@ -41,126 +48,73 @@ class KodiSerialRenamer extends ARenamer
 
     public function run()
     {
-        $this->serial();
-    }
+        foreach (Serial::getAll() as $serialName) {
+            $serial = new Serial($serialName);
+            if (!$serial->validate())
+                continue;
 
-    private function serial()
-    {
-        $opts = $this->fileHandler->getOpts();
-        $path = "ftp://{$opts['login']}:{$opts['password']}@{$opts['host']}/{$opts['path']}";
-        $this->setPath($path);
+            $seasons = Season::getSeasons();
+            if (!$seasons) continue;
 
-        $dir = $opts['path'] . '/' . $opts['dir'];
-        if (!$this->fileHandler->open($dir))
-            throw new FTPException('Недоступная директория: ' . $dir);
+            self::$currentPath = Season::getFullPath($serialName);
 
-        $this->serials = $this->fileHandler->list();
-        if (empty($this->serials) || !is_array($this->serials))
-            throw new FileHandlerException;
+            if (!Season::isSeasons($seasons)) {
+                Season::setSeasonNum();
+                $this->episodesHandler(self::ONE_SEASON);
+                self::$status = self::STATUS['IS_FILE'];
+            } else {
+                foreach ($seasons as $seasonName) {
+                    $season = new Season($seasonName);
+                    self::$currentPath = Season::getFullPath($serialName) . '/' . $seasonName;
+                    //если это сезон
+                    if (is_dir(self::$currentPath)) {
+                        $newSeasonName = $season->seasonNameHandler();
+                        $status = $this->episodesHandler();
+                        if (!$status)
+                            continue;
+                        if ($seasonName !== $newSeasonName)
+                            $season->rename($newSeasonName);
 
-        foreach ($this->serials as $serial) {
-            $this->serial = $serial;
-            if (is_dir($this->getFullPath($serial)) && $this->isNew($serial)) {
-                //заходим в папку сериала
-                $this->fileHandler->open($serial);
-                //получаем список сезонов или серий
-                $this->seasons = $this->fileHandler->list();
-                $status = $this->season();
-                if ($status !== self::STATUS['IS_FILE'])
-                    $this->fileHandler->parent();
-                if ($status !== self::STATUS['SKIP'])
-                    $this->fileHandler->rename($serial, $serial
-                        . ' ' . self::RENAME_TAG);
-            }
-        }
-    }
-
-    private function season() : int
-    {
-        $this->currentPath = $this->getFullPath($this->serial);
-        // проверяем файлы перед нами или папки
-        if (is_file($this->getFullPath("{$this->serial}/{$this->seasons[1]}"))) {
-            if (preg_match('/[^\d](\d{1,2})[^\d]/', $this->serial, $seasonNum))
-                $this->seasonNum = $seasonNum[1];
-            if (strlen($this->seasonNum) == 1)
-                $this->seasonNum = '0' . $this->seasonNum;
-
-            $this->series(self::ONE_SEASON);
-            return self::STATUS['IS_FILE'];
-        }
-        foreach ($this->seasons as $season) {
-            $this->season = $season;
-            $this->currentPath = $this->getFullPath($this->serial) . '/' . $season;
-            //если это сезон
-            if (is_dir($this->currentPath)) {
-                preg_match('/\d{1,2}/', $season, $seasonNum);
-                if (mb_strlen($seasonNum[0]) == 1)
-                    $seasonNum = '0' . $seasonNum[0];
-                $this->seasonNum = $seasonNum;
-                $newName = 'Season ' . trim($seasonNum);
-                $result = $this->series();
-                if ($result) {
-                    if ($season !== $newName)
-                        $this->fileHandler->rename($season, $newName);
-                } else {
-                    return self::STATUS['SKIP'];
+                    }
                 }
+                if (self::$status === self::STATUS['SKIP']) continue;
+                
+                self::$status = self::STATUS['RENAMED'];
             }
+
+            if (self::$status !== self::STATUS['IS_FILE']) {
+                self::$fileHandler->parent();
+            }
+            if (self::$status !== self::STATUS['SKIP']) {
+                self::$fileHandler->rename($serialName, $serialName . ' ' . self::RENAME_TAG);
+            }
+            self::$status = '';
         }
-        return self::STATUS['RENAMED'];
     }
 
-    private function series($oneSeasonSerial = FALSE) : bool
+    private function episodesHandler($oneSeasonSerial = FALSE) : bool
     {
         if (!$oneSeasonSerial)
-            $this->fileHandler->open($this->season);
-        if (!is_dir($this->currentPath))
+            self::$fileHandler->open(Season::getSeason());
+        if (!is_dir(self::$currentPath))
             return false;
 
-        $series = $this->fileHandler->list();
-        sort($series);
+        $episodes = Episode::getEpisodes();
+        foreach ($episodes as $ep) {
+            $episode = new Episode($ep);
 
-        foreach ($series as $ep) {
-            if (is_file($oldEpFullPath = $this->currentPath . '/' . $ep)) {
-                //пропускаем недокачанные серии
-                if (($this->extension = pathinfo($ep)['extension']) == 'part') {
-                    $this->fileHandler->parent();
-                    return FALSE;
-                }
-//                HouseMD.Seson1-episod-2 - копия.avi
-                if (preg_match('/\d{1,2}[-|_]\d{1,2}/', $ep, $match)) {
-                    $epNewName = $this->episode(str_replace('_', '-', $match[0]));
-                } else if (preg_match('/s(\d{1,2})e(\d{1,2})/i', $ep, $match)) {
-                    $epNewName = $this->episode($match[2]);
-                } else if (preg_match('/(\d{1,2})[^\d]/', $ep, $match)) {
-                    $epNewName = $this->episode($match[1]);
-                } else {
+            if (Episode::isEpisode(self::$currentPath)) {
+                if (Episode::skipPart())
+                    return false;
+                $episode->renameEpisode();
+                if (self::$status === self::STATUS['SKIP']) {
+                    self::$status = '';
                     continue;
-                }
-                if ($epNewName === self::STATUS['SKIP'])
-                    continue;
-                if ($ep !== $epNewName) {
-                    $this->fileHandler->rename($ep, $epNewName);
                 }
             }
         }
-        return $this->fileHandler->parent() ? true : false;
-    }
-
-    private function episode($epNum) : string
-    {
-        if (!in_array($this->extension, $this->extensions)) {
-            return self::STATUS['SKIP'];
-        }
-        if (strlen($epNum) == 1)
-            $epNum = '0' . $epNum;
-        return "s{$this->seasonNum}e{$epNum}.{$this->extension}";
-    }
-
-    private function initParams()
-    {
-        $params = Config::load(__DIR__ . '/../../security/params.php');
-        $this->extensions = $params['serialExtensions'];
+        self::$fileHandler->parent();
+        return true;
     }
 
 }

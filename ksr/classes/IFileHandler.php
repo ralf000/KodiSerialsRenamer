@@ -17,4 +17,6 @@ interface IFileHandler
 
     public function getOpts() : Config;
 
+    public function getParams() : Config;
+
 }

@@ -9,36 +9,59 @@
 namespace ksr\classes;
 
 
-class Serial extends ARenamer
+use ksr\exceptions\FileHandlerException;
+use ksr\exceptions\FTPException;
+
+class Serial extends ASerial
 {
-    private function serial()
+
+    private static $serials = [];
+    private static $serial = [];
+
+    /**
+     * Serial constructor.
+     * @param string $serial
+     */
+    public function __construct(string $serial)
     {
-        $opts = $this->fileHandler->getOpts();
+        parent::__construct();
+        self::$serial = $serial;
+    }
+
+    public function validate()
+    {
+        return (is_dir(self::getFullPath(self::$serial)) && $this->isNew(self::$serial)) ? true : false;
+    }
+
+
+    /**
+     * @return array Массив из папок сериалов (string)
+     * @throws FTPException
+     * @throws FileHandlerException
+     */
+    public static function getAll() : array
+    {
+        $opts = self::$fileHandler->getOpts();
         $path = "ftp://{$opts['login']}:{$opts['password']}@{$opts['host']}/{$opts['path']}";
-        $this->setPath($path);
+        self::setPath($path);
 
         $dir = $opts['path'] . '/' . $opts['dir'];
-        if (!$this->fileHandler->open($dir))
+        if (!self::$fileHandler->open($dir))
             throw new FTPException('Недоступная директория: ' . $dir);
 
-        $this->serials = $this->fileHandler->list();
-        if (empty($this->serials) || !is_array($this->serials))
-            throw new FileHandlerException;
+        self::$serials = self::$fileHandler->list();
+        if (empty(self::$serials) || !is_array(self::$serials))
+            throw new FileHandlerException('Не удалось получить список сериалов');
 
-        foreach ($this->serials as $serial) {
-            $this->serial = $serial;
-            if (is_dir($this->getFullPath($serial)) && $this->isNew($serial)) {
-                //заходим в папку сериала
-                $this->fileHandler->open($serial);
-                //получаем список сезонов или серий
-                $this->seasons = $this->fileHandler->list();
-                $status = $this->season();
-                if ($status !== self::STATUS['IS_FILE'])
-                    $this->fileHandler->parent();
-                if ($status !== self::STATUS['SKIP'])
-                    $this->fileHandler->rename($serial, $serial
-                        . ' ' . self::RENAME_TAG);
-            }
-        }
+        return self::$serials;
     }
+
+    /**
+     * @return string
+     */
+    public static function getSerial() : string
+    {
+        return self::$serial;
+    }
+
 }

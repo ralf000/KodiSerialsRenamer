@@ -40,7 +40,7 @@ class FTPHandler implements IFileHandler
      */
     public function list(string $dir = '')
     {
-        return ftp_nlist($this->ftp->getFtpStream(), $dir) ? : false;
+        return ftp_nlist($this->ftp->getFtpStream(), $dir);
     }
 
     /**
@@ -69,5 +69,11 @@ class FTPHandler implements IFileHandler
     {
         return $this->ftp->getOpts();
     }
+
+    public function getParams() : Config
+    {
+        return Config::load(__DIR__ . '/../../security/params.php') ?: false;
+    }
+
 
 }

@@ -4,6 +4,7 @@ namespace ksr\classes;
 
 
 use ksr\exceptions\FileHandlerException;
+use Psr\Log\LogLevel;
 
 abstract class ASerial extends ARenamer
 {
@@ -16,7 +17,7 @@ abstract class ASerial extends ARenamer
     public function __construct()
     {
         if (is_null(KodiSerialRenamer::$fileHandler))
-            throw new FileHandlerException('Класс "KodiSerialRenamer" не инициализирован');
+            throw new FileHandlerException(LogLevel::CRITICAL, 'Класс "KodiSerialRenamer" не инициализирован');
         parent::__construct(KodiSerialRenamer::$fileHandler);
     }
 
@@ -26,14 +27,18 @@ abstract class ASerial extends ARenamer
     }
 
     /**
-     * @param string $path
+     * @param $path
      */
-    protected static function setPath($path) :string 
+    protected static function setPath($path)
     {
         self::$path = $path;
     }
 
 
+    /**
+     * @param string $dir
+     * @return string
+     */
     public static function getFullPath(string $dir) : string
     {
         return self::$path . '/' . static::$fileHandler->getOpts()['dir'] . '/' . $dir;

@@ -5,6 +5,7 @@ namespace ksr\classes;
 
 
 use ksr\exceptions\ConfigException;
+use Psr\Log\LogLevel;
 
 class Episode extends ASerial
 {
@@ -29,7 +30,7 @@ class Episode extends ASerial
         $extension = self::$extension;
         $extensions = self::getParams()['serialExtensions'];
         if (!$extensions)
-            throw new ConfigException('Не удалось получить список разрешенных разрешений файлов');
+            throw new ConfigException(LogLevel::ERROR, 'Не удалось получить список разрешенных разрешений файлов');
         if (!in_array($extension, $extensions)) {
             self::$status = self::STATUS['SKIP'];
             return self::STATUS['SKIP'];

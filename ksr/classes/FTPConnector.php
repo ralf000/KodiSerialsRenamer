@@ -5,6 +5,7 @@ namespace ksr\classes;
 
 use ksr\exceptions\FTPException;
 use Noodlehaus\Config;
+use Psr\Log\LogLevel;
 
 class FTPConnector
 {
@@ -27,8 +28,9 @@ class FTPConnector
     private function __construct()
     {
         $this->opts = Config::load(__DIR__ . '/../../security/creds.json');
+        $this->opts = '';
         if (!$this->opts)
-            throw new FTPException('Не могу получить настройки для инициализации скрипта');
+            throw new FTPException(LogLevel::ERROR, 'Не могу получить настройки для инициализации скрипта');
         $this->connect();
     }
 
@@ -37,7 +39,7 @@ class FTPConnector
         $host = $this->opts['host'];
         $this->ftpStream = ftp_connect($host);
         if (!ftp_login($this->ftpStream, $this->opts['login'], $this->opts['password']))
-            throw new FTPException('Не могу соединиться с фтп ' . $host);
+            throw new FTPException(LogLevel::CRITICAL, 'Не могу соединиться с фтп ' . $host);
         ftp_pasv($this->ftpStream, true);
 
         return true;

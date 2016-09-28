@@ -11,6 +11,7 @@ namespace ksr\classes;
 
 use ksr\exceptions\FileHandlerException;
 use ksr\exceptions\FTPException;
+use Psr\Log\LogLevel;
 
 class Serial extends ASerial
 {
@@ -47,11 +48,11 @@ class Serial extends ASerial
 
         $dir = $opts['path'] . '/' . $opts['dir'];
         if (!self::$fileHandler->open($dir))
-            throw new FTPException('Недоступная директория: ' . $dir);
+            throw new FTPException(LogLevel::ERROR, 'Недоступная директория: ' . $dir);
 
         self::$serials = self::$fileHandler->list();
         if (empty(self::$serials) || !is_array(self::$serials))
-            throw new FileHandlerException('Не удалось получить список сериалов');
+            throw new FileHandlerException(LogLevel::WARNING, 'Не удалось получить список сериалов');
 
         return self::$serials;
     }

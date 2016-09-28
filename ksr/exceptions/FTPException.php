@@ -3,7 +3,7 @@
 namespace ksr\exceptions;
 
 
-class FTPException extends \Exception
+class FTPException extends BaseException
 {
     
 }

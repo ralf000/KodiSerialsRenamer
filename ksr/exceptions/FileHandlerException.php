@@ -3,7 +3,7 @@
 namespace ksr\exceptions;
 
 
-class FileHandlerException extends \Exception
+class FileHandlerException extends BaseException
 {
 
 }

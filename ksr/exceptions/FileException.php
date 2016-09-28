@@ -2,14 +2,14 @@
 /**
  * Created by PhpStorm.
  * User: kudinov
- * Date: 27.09.2016
- * Time: 13:00
+ * Date: 28.09.2016
+ * Time: 9:57
  */
 
 namespace ksr\exceptions;
 
 
-class ConfigException extends BaseException
+class FileException extends BaseException
 {
 
 }

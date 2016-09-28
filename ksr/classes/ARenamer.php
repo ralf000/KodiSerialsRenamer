@@ -28,6 +28,11 @@ abstract class ARenamer
      * @var $status int
      */
     protected static $status;
+    /**
+     * @var Logger $logger
+     */
+    protected static $logger = null;
+
 
     /**
      * SerialRenaimer constructor.
@@ -37,6 +42,8 @@ abstract class ARenamer
     {
         if (is_null(static::$fileHandler))
             self::$fileHandler = $fileHandler;
+        if (is_null(self::$logger))
+            self::$logger = new Logger();
     }
 
     /**

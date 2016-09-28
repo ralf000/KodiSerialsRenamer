@@ -16,6 +16,9 @@ class BaseException extends Exception
         parent::__construct($message, $code, $previous);
     }
 
-    
+    public function message(){
+        header("Content-Type: text/html; charset=utf-8");
+        return $this->getMessage();
+    }
 
 }

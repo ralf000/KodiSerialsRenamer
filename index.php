@@ -1,5 +1,4 @@
 <?php
-header("Content-Type: text/html; charset=utf-8");
 
 use ksr\classes\FTPHandler;
 use ksr\classes\KodiSerialRenamer;
@@ -14,5 +13,5 @@ try {
     $renamer = new KodiSerialRenamer(new FTPHandler());
     $renamer->run();
 } catch (BaseException $ex) {
-    echo $ex->getMessage();
+    echo $ex->message();
 }

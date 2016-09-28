@@ -109,7 +109,7 @@ class KodiSerialRenamer extends ARenamer
 
             if (Episode::isEpisode(self::$currentPath)) {
                 if (Episode::skipPart()) {
-                    self::$logger[] = Serial::getSerial() . ' ещё не докачан и был пропущен';
+                    self::$logger[] = Serial::getSerial() . ' ещё не докачен и был пропущен';
                     return false;
                 }
                 $episode->renameEpisode();

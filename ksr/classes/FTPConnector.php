@@ -28,7 +28,6 @@ class FTPConnector
     private function __construct()
     {
         $this->opts = Config::load(__DIR__ . '/../../security/creds.json');
-        $this->opts = '';
         if (!$this->opts)
             throw new FTPException(LogLevel::ERROR, 'Не могу получить настройки для инициализации скрипта');
         $this->connect();

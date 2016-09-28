@@ -20,7 +20,8 @@ class Logger extends AbstractLogger implements \ArrayAccess
     {
         $output = date('H:i:s d-m-Y') . PHP_EOL;
         $output .= 'Тип: ' . $level . PHP_EOL;
-        $output .= 'Сообщение: ' . PHP_EOL . $message . PHP_EOL;
+        if ($message)
+            $output .= 'Сообщение: ' . PHP_EOL . $message . PHP_EOL;
         if ($context)
             $output .= 'Контекст выполнения: ' . PHP_EOL . implode(PHP_EOL, $context) . PHP_EOL;
         $output .= '==============================';

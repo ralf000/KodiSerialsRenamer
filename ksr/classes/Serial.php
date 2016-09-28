@@ -13,10 +13,20 @@ use ksr\exceptions\FileHandlerException;
 use ksr\exceptions\FTPException;
 use Psr\Log\LogLevel;
 
+/**
+ * Class Serial
+ * @package ksr\classes
+ */
 class Serial extends ASerial
 {
 
+    /**
+     * @var array
+     */
     private static $serials = [];
+    /**
+     * @var string
+     */
     private static $serial = '';
 
     /**
@@ -29,6 +39,10 @@ class Serial extends ASerial
         self::$serial = $serial;
     }
 
+    /**
+     * Проверяет, что сериал это папка, не отмеченная тегом (R)
+     * @return bool
+     */
     public function validate()
     {
         return (is_dir(self::getFullPath(self::$serial)) && $this->isNew(self::$serial)) ? true : false;

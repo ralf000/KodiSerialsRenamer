@@ -7,8 +7,17 @@ use Noodlehaus\Config;
 
 abstract class ARenamer
 {
+    /**
+     * Содержит ли папка вложенные подпапки (если нет то true)
+     */
     const ONE_SEASON = TRUE;
+    /**
+     * Тег, добавляемый к названию папки, показывающий, что она успешно обработана
+     */
     const RENAME_TAG = '(R)';
+    /**
+     * Статусы выполнения программы
+     */
     const STATUS = [
         'SKIP' => -1,
         'IS_FILE' => 0,

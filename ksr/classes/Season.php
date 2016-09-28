@@ -9,10 +9,20 @@
 namespace ksr\classes;
 
 
+/**
+ * Class Season
+ * @package ksr\classes
+ */
 class Season extends ASerial
 {
 
+    /**
+     * @var string ткущий номер сезона
+     */
     protected static $seasonNum = '01';
+    /**
+     * @var string текущее название сезона
+     */
     protected static $season = '';
 
     /**
@@ -25,6 +35,11 @@ class Season extends ASerial
         self::$season = $seasonName;
     }
 
+    /**
+     * Проверяет с сезонами или эпизодами имеем дело
+     * @param array $seasons
+     * @return bool
+     */
     public static function isSeasons(array $seasons)
     {
         return (is_file(self::getFullPath(Serial::getSerial() . '/' . current($seasons)))) ? false : true;
@@ -42,6 +57,9 @@ class Season extends ASerial
         return 'Season ' . trim($seasonNum[0]);
     }
 
+    /**
+     * @param string $seasonNum
+     */
     public static function setSeasonNum($seasonNum = '')
     {
         if (!empty($seasonNum)) {
@@ -54,6 +72,10 @@ class Season extends ASerial
             self::$seasonNum = '0' . self::$seasonNum;
     }
 
+    /**
+     * Получить список файлов сериала
+     * @return array|bool
+     */
     public static function getSeasons()
     {
         //заходим в папку сериала

@@ -7,6 +7,10 @@ use ksr\exceptions\FTPException;
 use Noodlehaus\Config;
 use Psr\Log\LogLevel;
 
+/**
+ * Class FTPConnector
+ * @package ksr\classes
+ */
 class FTPConnector
 {
     /**
@@ -33,6 +37,10 @@ class FTPConnector
         $this->connect();
     }
 
+    /**
+     * @return bool
+     * @throws FTPException
+     */
     private function connect() : bool
     {
         $host = $this->opts['host'];
@@ -44,6 +52,9 @@ class FTPConnector
         return true;
     }
 
+    /**
+     * @return FTPConnector
+     */
     public static function init() : self
     {
         if (is_null(self::$instance))

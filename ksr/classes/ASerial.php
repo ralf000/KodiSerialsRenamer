@@ -6,9 +6,16 @@ namespace ksr\classes;
 use ksr\exceptions\FileHandlerException;
 use Psr\Log\LogLevel;
 
+/**
+ * Class ASerial
+ * @package ksr\classes
+ */
 abstract class ASerial extends ARenamer
 {
 
+    /**
+     * @var string
+     */
     protected static $path = '';
 
     /**
@@ -21,6 +28,10 @@ abstract class ASerial extends ARenamer
         parent::__construct(KodiSerialRenamer::$fileHandler);
     }
 
+    /**
+     * @param string $fileName
+     * @return bool
+     */
     protected function isNew(string $fileName)
     {
         return !strpos($fileName, self::RENAME_TAG);

@@ -7,12 +7,25 @@ namespace ksr\classes;
 use ksr\exceptions\ConfigException;
 use Psr\Log\LogLevel;
 
+/**
+ * Class Episode
+ * @package ksr\classes
+ */
 class Episode extends ASerial
 {
 
+    /**
+     * @var array список файлов эпизодов (string)
+     */
     private static $episodes = [];
+    /**
+     * @var string название файла эпизода
+     */
     private static $episode = '';
 
+    /**
+     * @var string расширение файла эпизода
+     */
     private static $extension = '';
 
     /**
@@ -25,6 +38,12 @@ class Episode extends ASerial
         self::$episode = $episode;
     }
 
+    /**
+     * Переименовывает файл эпизода сериала
+     * @param $epNum
+     * @return int статус
+     * @throws ConfigException
+     */
     private function rename($epNum)
     {
         $extension = self::$extension;
@@ -46,6 +65,9 @@ class Episode extends ASerial
         return self::STATUS['RENAMED'];
     }
 
+    /**
+     * @return array список названий файлов эпизодов
+     */
     public static function getEpisodes() : array
     {
         $episodes = self::$fileHandler->list();
@@ -55,6 +77,10 @@ class Episode extends ASerial
         return $episodes;
     }
 
+    /**
+     * Получает номер эпизода сериала и отдаёт на переименование
+     * @throws ConfigException
+     */
     public function renameEpisode()
     {
         if (preg_match('/\d{1,2}[-|_]\d{1,2}/', self::$episode, $match))
@@ -65,6 +91,10 @@ class Episode extends ASerial
             $this->rename($match[1]);
     }
 
+    /**
+     * @param $currentPath
+     * @return bool
+     */
     public static function isEpisode($currentPath) : bool
     {
         return (is_file($currentPath . '/' . self::$episode)) ? true : false;

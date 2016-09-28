@@ -5,6 +5,10 @@ namespace ksr\classes;
 
 use Noodlehaus\Config;
 
+/**
+ * Class FTPHandler
+ * @package ksr\classes
+ */
 class FTPHandler implements IFileHandler
 {
 
@@ -65,11 +69,17 @@ class FTPHandler implements IFileHandler
     }
 
 
+    /**
+     * @return Config
+     */
     public function getOpts() : Config
     {
         return $this->ftp->getOpts();
     }
 
+    /**
+     * @return Config
+     */
     public function getParams() : Config
     {
         return Config::load(__DIR__ . '/../../security/params.php') ?: false;

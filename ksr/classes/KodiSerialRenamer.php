@@ -8,9 +8,16 @@ use ksr\exceptions\FTPException;
 use Noodlehaus\Config;
 use Psr\Log\LogLevel;
 
+/**
+ * Class KodiSerialRenamer
+ * @package ksr\classes
+ */
 class KodiSerialRenamer extends ARenamer
 {
 
+    /**
+     * @var string путь до текущей рабочей директории
+     */
     private static $currentPath = '';
 
     /**
@@ -23,11 +30,20 @@ class KodiSerialRenamer extends ARenamer
         $this->initParams();
     }
 
+    /**
+     * получаем параметры приложения
+     */
     private function initParams()
     {
         self::$params = self::$fileHandler->getParams();
     }
 
+    /**
+     * Запуск приложения
+     * @throws FTPException
+     * @throws FileHandlerException
+     * @throws \Exception
+     */
     public function run()
     {
         foreach (Serial::getAll() as $serialName) {
@@ -54,6 +70,10 @@ class KodiSerialRenamer extends ARenamer
         self::$logger->log(LogLevel::INFO, self::$logger->getLog(), [static::class]);
     }
 
+    /**
+     * Обработчик сезонов сериала
+     * @param $seasons
+     */
     private function seasonsHandler($seasons){
         foreach ($seasons as $seasonName) {
             $season = new Season($seasonName);
@@ -71,6 +91,11 @@ class KodiSerialRenamer extends ARenamer
         }
     }
 
+    /**
+     * Обработчик эпизодов сезона сериала
+     * @param bool $oneSeasonSerial
+     * @return bool
+     */
     private function episodesHandler($oneSeasonSerial = FALSE) : bool
     {
         if (!$oneSeasonSerial)
@@ -98,6 +123,9 @@ class KodiSerialRenamer extends ARenamer
         return true;
     }
 
+    /**
+     * Обработчик статусов приложения
+     */
     private function statusHandler(){
         if (self::$status !== self::STATUS['IS_FILE']) {
             self::$fileHandler->parent();
